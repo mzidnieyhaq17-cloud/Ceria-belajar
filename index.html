@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ceria Belajar — Belajar Sambil Bermain</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap');
+
+  :root{
+    --bg1:#FFF1E6; --bg2:#E8FFF0; --bg3:#E8F4FF; --bg4:#FFF6E0;
+    --ink:#3A2E5C;
+    --sub:#8A80A8;
+    --panel:#FFFFFF;
+    --line:#F0E9FB;
+    --red:#FF6B6B; --orange:#FFA94D; --yellow:#FFD43B; --green:#51CF66;
+    --blue:#4DABF7; --purple:#9775FA; --pink:#F783AC;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;font-family:'Baloo 2',sans-serif;color:var(--ink);}
+  body{
+    background:linear-gradient(120deg,var(--bg1),var(--bg3) 40%,var(--bg2) 70%,var(--bg4));
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;
+  }
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+  h1,h2,h3{margin:0;}
+
+  .app{
+    width:100%;max-width:620px;min-height:700px;
+    background:var(--panel);border-radius:28px;overflow:hidden;
+    display:flex;flex-direction:column;position:relative;
+    box-shadow:0 24px 60px rgba(120,90,200,0.22);
+  }
+
+  .topbar{
+    display:flex;align-items:center;gap:10px;padding:16px 20px;
+    background:linear-gradient(120deg,var(--purple),var(--pink));
+    color:#fff;flex-shrink:0;
+  }
+  .back-btn{
+    width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.25);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;
+    visibility:hidden;flex-shrink:0;
+  }
+  .back-btn.show{visibility:visible;}
+  .topbar-title{font-weight:800;font-size:18px;}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;}
+
+  .screen{display:none;flex:1;flex-direction:column;min-height:0;}
+  .screen.active{display:flex;}
+
+  /* ---------- SETUP ---------- */
+  #screen-setup{align-items:center;justify-content:center;text-align:center;gap:16px;padding:36px 28px;}
+  .mascot{font-size:70px;}
+  .setup-title{font-size:26px;font-weight:800;color:var(--purple);}
+  .setup-sub{color:var(--sub);font-size:14px;max-width:320px;line-height:1.6;}
+  input[type="text"],input[type="number"]{
+    width:100%;max-width:300px;padding:14px 16px;border-radius:16px;border:2px solid var(--line);
+    font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:600;color:var(--ink);outline:none;text-align:center;
+  }
+  input[type="text"]:focus,input[type="number"]:focus{border-color:var(--purple);}
+  .err{color:var(--red);font-size:12px;height:14px;font-weight:700;}
+  .btn{
+    font-family:'Baloo 2',sans-serif;font-weight:800;font-size:16px;border:none;border-radius:18px;
+    padding:14px 26px;cursor:pointer;transition:transform .1s;color:#fff;
+  }
+  .btn:active{transform:scale(0.95);}
+  .btn-primary{background:linear-gradient(120deg,var(--purple),var(--pink));width:100%;max-width:300px;}
+  .btn-outline{background:#fff;color:var(--purple);border:2px solid var(--purple);}
+
+  /* ---------- MENU ---------- */
+  #screen-menu{padding:22px;gap:16px;overflow-y:auto;}
+  .menu-head{display:flex;align-items:center;gap:12px;}
+  .avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--yellow),var(--orange));display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+  .menu-greet{font-size:18px;font-weight:800;}
+  .menu-sub{color:var(--sub);font-size:13px;}
+  .star-badge{
+    margin-left:auto;background:linear-gradient(120deg,var(--yellow),var(--orange));color:#fff;
+    padding:8px 14px;border-radius:16px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:5px;flex-shrink:0;
+  }
+
+  .lang-row{display:flex;gap:8px;}
+  .lang-btn{
+    flex:1;padding:8px;border-radius:12px;border:2px solid var(--line);background:#fff;
+    font-family:'Baloo 2',sans-serif;font-weight:700;font-size:13px;color:var(--sub);cursor:pointer;
+  }
+  .lang-btn.active{border-color:var(--purple);color:var(--purple);background:#F5F0FF;}
+
+  .game-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .game-card{
+    border-radius:20px;padding:18px 14px;color:#fff;cursor:pointer;position:relative;overflow:hidden;
+    display:flex;flex-direction:column;gap:6px;transition:transform .12s;min-height:118px;
+  }
+  .game-card:active{transform:scale(0.96);}
+  .game-card .gc-icon{font-size:34px;}
+  .game-card .gc-title{font-weight:800;font-size:15px;}
+  .game-card .gc-desc{font-size:11px;opacity:0.92;line-height:1.4;}
+
+  /* ---------- QUIZ ---------- */
+  #screen-quiz{padding:20px;gap:16px;}
+  .quiz-top{display:flex;align-items:center;justify-content:space-between;}
+  .quiz-progress{font-weight:700;font-size:13px;color:var(--sub);}
+  .quiz-stars{font-weight:800;font-size:13px;color:var(--orange);}
+  .progress-track{height:8px;background:var(--line);border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink));border-radius:4px;transition:width .3s;}
+
+  .display-card{
+    background:linear-gradient(135deg,#F5F0FF,#FFF0F7);border-radius:22px;padding:26px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:170px;
+  }
+  .display-emoji{font-size:80px;line-height:1;}
+  .display-arabic{font-size:70px;line-height:1;font-family:"Traditional Arabic","Scheherazade New",serif;}
+  .display-color-swatch{width:100px;height:100px;border-radius:50%;box-shadow:0 6px 16px rgba(0,0,0,0.15);}
+  .display-text{font-size:38px;font-weight:800;color:var(--purple);}
+  .display-hint{font-size:13px;color:var(--sub);font-weight:700;}
+
+  .question-text{text-align:center;font-size:16px;font-weight:800;}
+  .listen-btn{
+    display:inline-flex;align-items:center;gap:6px;background:#F5F0FF;color:var(--purple);
+    border:none;border-radius:14px;padding:8px 16px;font-family:'Baloo 2',sans-serif;font-weight:700;
+    font-size:13px;cursor:pointer;margin:0 auto;
+  }
+
+  .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;}
+  .option-btn{
+    background:#fff;border:3px solid var(--line);border-radius:18px;padding:16px 10px;
+    font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;color:var(--ink);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;text-align:center;min-height:64px;
+  }
+  .option-btn:not(.locked):active{transform:scale(0.96);}
+  .option-btn.correct{border-color:var(--green);background:#EAFBEE;color:#1E8E3E;}
+  .option-btn.wrong{border-color:var(--red);background:#FFEDED;color:#C92A2A;}
+  .option-btn.locked{cursor:default;}
+
+  .feedback-banner{
+    text-align:center;font-weight:800;font-size:15px;min-height:22px;
+  }
+  .feedback-banner.correct{color:#1E8E3E;}
+  .feedback-banner.wrong{color:#C92A2A;}
+
+  #nextBtn{display:none;}
+
+  /* ---------- RESULT ---------- */
+  #screen-result{align-items:center;justify-content:center;text-align:center;gap:14px;padding:30px;}
+  .result-stars{font-size:50px;}
+  .result-title{font-size:22px;font-weight:800;color:var(--purple);}
+  .result-sub{color:var(--sub);font-size:14px;}
+  .result-actions{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;margin-top:8px;}
+
+  /* ---------- SONGS ---------- */
+  #screen-song{padding:20px;gap:18px;overflow-y:auto;}
+  .xylo-wrap{background:linear-gradient(135deg,#FFF7E0,#FFE8F0);border-radius:20px;padding:18px;text-align:center;}
+  .xylo-title{font-weight:800;font-size:15px;margin-bottom:2px;}
+  .xylo-sub{font-size:11.5px;color:var(--sub);margin-bottom:14px;}
+  .xylo-keys{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
+  .xylo-key{
+    width:36px;height:80px;border-radius:10px;border:none;color:#fff;font-weight:800;font-size:12px;
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;cursor:pointer;
+  }
+  .xylo-key:active{transform:translateY(3px);}
+
+  .song-card{
+    background:#F5F0FF;border-radius:18px;padding:16px 18px;
+  }
+  .song-card h3{font-size:15px;color:var(--purple);margin-bottom:8px;}
+  .song-card p{font-size:13.5px;line-height:1.9;margin:0 0 10px;white-space:pre-line;}
+  .song-note{font-size:11px;color:var(--sub);text-align:center;margin-top:-4px;}
+
+  @media (max-width:480px){
+    .app{border-radius:0;min-height:100vh;}
+    body{padding:0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="back-btn" id="backBtn">←</div>
+    <div class="topbar-title" id="topbarTitle">Ceria Belajar</div>
+    <div class="topbar-right" id="topbarRight"></div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="screen active" id="screen-setup">
+    <div class="mascot">🦁🌈</div>
+    <div class="setup-title">Ceria Belajar</div>
+    <p class="setup-sub">Belajar berhitung, huruf, hewan, warna, dan huruf hijaiyah sambil bermain — seru dan menyenangkan!</p>
+    <input type="text" id="nameInput" placeholder="Nama kamu" maxlength="20">
+    <input type="number" id="ageInput" placeholder="Umur kamu" min="3" max="12">
+    <div class="err" id="setupErr"></div>
+    <button class="btn btn-primary" id="startBtn">Mulai Belajar 🚀</button>
+  </div>
+
+  <!-- MENU -->
+  <div class="screen" id="screen-menu">
+    <div class="menu-head">
+      <div class="avatar">😊</div>
+      <div>
+        <div class="menu-greet" id="menuGreet">Halo!</div>
+        <div class="menu-sub" id="menuSub">Yuk pilih mau belajar apa hari ini!</div>
+      </div>
+      <div class="star-badge">⭐ <span id="starCount">0</span></div>
+    </div>
+
+    <div class="lang-row">
+      <div class="lang-btn active" data-lang="id">🇮🇩 Indonesia</div>
+      <div class="lang-btn" data-lang="en">🇬🇧 English</div>
+      <div class="lang-btn" data-lang="su">🌾 Sunda</div>
+    </div>
+
+    <div class="game-grid" id="gameGrid"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="screen" id="screen-quiz">
+    <div class="quiz-top">
+      <div class="quiz-progress" id="quizProgress">Soal 1/8</div>
+      <div class="quiz-stars" id="quizStars">⭐ 0</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:12%;"></div></div>
+
+    <div class="display-card" id="displayCard"></div>
+    <div class="question-text" id="questionText"></div>
+    <button class="listen-btn" id="listenBtn">🔊 <span id="listenLabel">Dengarkan</span></button>
+
+    <div class="feedback-banner" id="feedbackBanner"></div>
+    <div class="options-grid" id="optionsGrid"></div>
+    <button class="btn btn-primary" id="nextBtn">Lanjut</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="screen-result">
+    <div class="result-stars" id="resultStars">⭐⭐⭐</div>
+    <div class="result-title" id="resultTitle">Hore, selesai!</div>
+    <div class="result-sub" id="resultSub">Kamu dapat 8 dari 8 bintang!</div>
+    <div class="result-actions">
+      <button class="btn btn-primary" id="playAgainBtn">Main Lagi</button>
+      <button class="btn btn-outline" id="backMenuBtn">Kembali ke Menu</button>
+    </div>
+  </div>
+
+  <!-- SONG -->
+  <div class="screen" id="screen-song">
+    <div class="xylo-wrap">
+      <div class="xylo-title" id="xyloTitle">Alat Musik Ceria</div>
+      <div class="xylo-sub" id="xyloSub">Ketuk untuk membunyikan not</div>
+      <div class="xylo-keys" id="xyloKeys"></div>
+    </div>
+    <div id="songList"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---------- I18N ----------
+  const UI = {
+    id: {
+      greet:'Halo', ageLabel:'tahun', menuSub:'Yuk pilih mau belajar apa hari ini!',
+      gameMath:'Berhitung', gameLetter:'Tebak Huruf', gameAnimal:'Tebak Hewan', gameColor:'Tebak Warna', gameHijaiyah:'Huruf Hijaiyah', gameSong:'Lagu & Musik',
+      descMath:'Belajar tambah & kurang', descLetter:'Kenali huruf dari gambar', descAnimal:'Tebak nama hewan', descColor:'Tebak nama warna', descHijaiyah:'Kenali huruf Arab', descSong:'Bernyanyi & main musik',
+      soal:'Soal', dari:'dari', askMath:'Berapa hasil dari ini?', askLetter:'diawali huruf apa?',
+      askAnimal:'Apa nama hewan ini?', askColor:'Warna apa ini?', askHijaiyah:'Ini huruf hijaiyah apa?',
+      correct:'Betul sekali! 🎉', wrong:'Belum tepat, coba lagi ya! 😊', next:'Lanjut', seeResult:'Lihat Hasil',
+      resultTitle:'Hore, selesai!', starsEarned:'Kamu dapat', dariSoal:'bintang dari', soalKata:'soal',
+      playAgain:'Main Lagi', backMenu:'Kembali ke Menu', listen:'Dengarkan',
+      xyloTitle:'Alat Musik Ceria', xyloSub:'Ketuk untuk membunyikan not',
+      songSectionTitle:'Lagu Belajar (ciptaan sendiri)',
+      msgGreat:'Luar biasa! Kamu hebat! 🏆', msgGood:'Bagus sekali! 👏', msgOk:'Terus semangat belajar! 💪'
+    },
+    en: {
+      greet:'Hi', ageLabel:'years old', menuSub:'Pick what you want to learn today!',
+      gameMath:'Counting', gameLetter:'Guess Letter', gameAnimal:'Guess Animal', gameColor:'Guess Color', gameHijaiyah:'Hijaiyah Letters', gameSong:'Songs & Music',
+      descMath:'Learn addition & subtraction', descLetter:'Recognize letters from pictures', descAnimal:'Guess the animal name', descColor:'Guess the color name', descHijaiyah:'Learn Arabic letters', descSong:'Sing & play music',
+      soal:'Question', dari:'of', askMath:'What is the answer?', askLetter:'starts with which letter?',
+      askAnimal:'What is this animal called?', askColor:'What color is this?', askHijaiyah:'Which hijaiyah letter is this?',
+      correct:'Correct! 🎉', wrong:'Not quite, try again! 😊', next:'Next', seeResult:'See Result',
+      resultTitle:'Yay, finished!', starsEarned:'You earned', dariSoal:'stars out of', soalKata:'questions',
+      playAgain:'Play Again', backMenu:'Back to Menu', listen:'Listen',
+      xyloTitle:'Fun Music Toy', xyloSub:'Tap to play a note',
+      songSectionTitle:'Learning Songs (original)',
+      msgGreat:'Amazing! You are great! 🏆', msgGood:'Very good! 👏', msgOk:'Keep up the good work! 💪'
+    },
+    su: {
+      greet:'Wilujeng', ageLabel:'taun', menuSub:'Yu pilih rek diajar naon poe ieu!',
+      gameMath:'Ngitung', gameLetter:'Tebak Aksara', gameAnimal:'Tebak Sasatoan', gameColor:'Tebak Warna', gameHijaiyah:'Aksara Hijaiyah', gameSong:'Lagu jeung Musik',
+      descMath:'Diajar tambah jeung kurang', descLetter:'Wanoh aksara tina gambar', descAnimal:'Tembak ngaran sasatoan', descColor:'Tembak ngaran warna', descHijaiyah:'Wanoh aksara Arab', descSong:'Ngawih jeung maen musik',
+      soal:'Soal', dari:'ti', askMath:'Sabaraha hasilna?', askLetter:'dimimitian ku aksara naon?',
+      askAnimal:'Naon ngaran sasatoan ieu?', askColor:'Naon warna ieu?', askHijaiyah:'Ieu aksara hijaiyah naon?',
+      correct:'Bener pisan! 🎉', wrong:'Acan pas, coba deui nya! 😊', next:'Lanjut', seeResult:'Tempo Hasil',
+      resultTitle:'Horeee, réngsé!', starsEarned:'Anjeun kéngingkeun', dariSoal:'bentang tina', soalKata:'soal',
+      playAgain:'Maen Deui', backMenu:'Balik ka Menu', listen:'Regepkeun',
+      xyloTitle:'Alat Musik Ceria', xyloSub:'Toél pikeun ngasupkeun sora',
+      songSectionTitle:'Lagu Diajar (karya sorangan)',
+      msgGreat:'Alus pisan! Anjeun hébat! 🏆', msgGood:'Alus pisan! 👏', msgOk:'Tetep semangat diajar! 💪'
+    }
+  };
+
+  // ---------- VOCAB DATA ----------
+  const animals = [
+    {emoji:'🐱', id:'Kucing', en:'Cat', su:'Ucing'},
+    {emoji:'🐶', id:'Anjing', en:'Dog', su:'Anjing'},
+    {emoji:'🐘', id:'Gajah', en:'Elephant', su:'Gajah'},
+    {emoji:'🦁', id:'Singa', en:'Lion', su:'Singa'},
+    {emoji:'🐔', id:'Ayam', en:'Chicken', su:'Hayam'},
+    {emoji:'🐟', id:'Ikan', en:'Fish', su:'Lauk'},
+    {emoji:'🐰', id:'Kelinci', en:'Rabbit', su:'Kelenci'},
+    {emoji:'🐄', id:'Sapi', en:'Cow', su:'Sapi'},
+    {emoji:'🦆', id:'Bebek', en:'Duck', su:'Meri'},
+    {emoji:'🐴', id:'Kuda', en:'Horse', su:'Kuda'}
+  ];
+
+  const colors = [
+    {hex:'#FF6B6B', id:'Merah', en:'Red', su:'Beureum'},
+    {hex:'#4DABF7', id:'Biru', en:'Blue', su:'Biru'},
+    {hex:'#51CF66', id:'Hijau', en:'Green', su:'Hejo'},
+    {hex:'#FFD43B', id:'Kuning', en:'Yellow', su:'Konéng'},
+    {hex:'#9775FA', id:'Ungu', en:'Purple', su:'Wungu'},
+    {hex:'#FFA94D', id:'Oranye', en:'Orange', su:'Oranye'},
+    {hex:'#F783AC', id:'Merah Muda', en:'Pink', su:'Pink'},
+    {hex:'#343A40', id:'Hitam', en:'Black', su:'Hideung'},
+    {hex:'#F1F3F5', id:'Putih', en:'White', su:'Bodas'},
+    {hex:'#A0522D', id:'Coklat', en:'Brown', su:'Coklat'}
+  ];
+
+  const letterWords = [
+    {emoji:'🍎', id:'Apel', en:'Apple', su:'Apel'},
+    {emoji:'⚽', id:'Bola', en:'Ball', su:'Bal'},
+    {emoji:'🐔', id:'Ayam', en:'Chicken', su:'Hayam'},
+    {emoji:'🐘', id:'Gajah', en:'Elephant', su:'Gajah'},
+    {emoji:'🐟', id:'Ikan', en:'Fish', su:'Lauk'},
+    {emoji:'🐱', id:'Kucing', en:'Cat', su:'Ucing'},
+    {emoji:'🐄', id:'Sapi', en:'Cow', su:'Sapi'},
+    {emoji:'🎩', id:'Topi', en:'Hat', su:'Topi'},
+    {emoji:'🐍', id:'Ular', en:'Snake', su:'Oray'},
+    {emoji:'🌙', id:'Bulan', en:'Moon', su:'Bulan'},
+    {emoji:'🚗', id:'Mobil', en:'Car', su:'Mobil'},
+    {emoji:'🏠', id:'Rumah', en:'House', su:'Imah'}
+  ];
+
+  const hijaiyah = [
+    {ar:'ا', name:'Alif'}, {ar:'ب', name:'Ba'}, {ar:'ت', name:'Ta'}, {ar:'ث', name:'Tsa'},
+    {ar:'ج', name:'Jim'}, {ar:'ح', name:'Ha'}, {ar:'خ', name:'Kha'}, {ar:'د', name:'Dal'},
+    {ar:'ذ', name:'Dzal'}, {ar:'ر', name:'Ra'}, {ar:'ز', name:'Za'}, {ar:'س', name:'Sin'},
+    {ar:'ش', name:'Syin'}, {ar:'ص', name:'Shad'}, {ar:'ض', name:'Dhad'}, {ar:'ط', name:'Tha'},
+    {ar:'ظ', name:'Zha'}, {ar:'ع', name:"'Ain"}, {ar:'غ', name:'Ghain'}, {ar:'ف', name:'Fa'},
+    {ar:'ق', name:'Qaf'}, {ar:'ك', name:'Kaf'}, {ar:'ل', name:'Lam'}, {ar:'م', name:'Mim'},
+    {ar:'ن', name:'Nun'}, {ar:'و', name:'Wau'}, {ar:'ه', name:'Ha (Ha\')'}, {ar:'ي', name:'Ya'}
+  ];
+
+  const originalSongs = {
+    id: [
+      { title:'Lagu Angka', text:'Satu dua tiga empat\nAyo kita belajar cepat\nLima enam tujuh delapan\nSemangat terus jangan segan' },
+      { title:'Lagu Warna', text:'Merah kuning hijau biru\nWarna-warni di sekelilingku\nUngu jingga dan juga pink\nIndah semua bagai pelangi' },
+      { title:'Lagu Huruf', text:'A B C D E F G\nAyo mengeja dengan gembira\nH I J K L M N\nBelajar huruf sangatlah senang' }
+    ],
+    en: [
+      { title:'Number Song', text:'One two three and four\nLet us learn a little more\nFive six seven eight\nKeep on going, it feels great' },
+      { title:'Color Song', text:'Red and yellow, green and blue\nSo many colors all around you\nPurple, orange, pink so bright\nColors make the world so light' },
+      { title:'Letter Song', text:'A B C D E F G\nSpelling words so happily\nH I J K L M N\nLearning letters now and then' }
+    ],
+    su: [
+      { title:'Lagu Angka', text:'Hiji dua tilu opat\nYu diajar kalayan giat\nLima genep tujuh dalapan\nSemangat terus tong bosenan' },
+      { title:'Lagu Warna', text:'Beureum konéng hejo biru\nWarna-warni di sabudeureun kuring\nWungu jeung oranye ogé pink\nEndah kabéh siga katumbiri' },
+      { title:'Lagu Aksara', text:'A B C D E F G\nYu ngeja bareng ngaguligah\nH I J K L M N\nDiajar aksara pohara resep' }
+    ]
+  };
+
+  // ---------- STATE ----------
+  let history = ['setup'];
+  let lang = 'id';
+  let playerName = '';
+  let playerAge = 6;
+  let ageTier = 'tk';
+  let totalStars = 0;
+
+  let quizGame = null;
+  let questions = [];
+  let qIndex = 0;
+  let sessionStars = 0;
+  let locked = false;
+
+  function t(key){ return UI[lang][key] || key; }
+
+  function showScreen(id, push){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('screen-'+id).classList.add('active');
+    document.getElementById('backBtn').classList.toggle('show', id !== 'setup' && id !== 'menu');
+    if(push !== false) history.push(id);
+    const titles = { setup:'Ceria Belajar', menu:'Ceria Belajar', quiz:gameTitle(), result:'Ceria Belajar', song:t('gameSong') };
+    document.getElementById('topbarTitle').textContent = titles[id] || 'Ceria Belajar';
+  }
+  function goBack(){
+    if(history.length<=1) return;
+    history.pop();
+    showScreen(history[history.length-1], false);
+  }
+  docum
